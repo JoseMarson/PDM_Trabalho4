@@ -1,4 +1,4 @@
-package com.eduardoomarson.quizpdm.QuestionsActivity.Model
+package com.eduardoomarson.quizpdm.ui.feature.questions
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

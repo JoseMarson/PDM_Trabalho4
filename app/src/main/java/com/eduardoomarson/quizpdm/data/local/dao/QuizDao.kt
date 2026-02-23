@@ -13,6 +13,12 @@ interface QuizDao {
     @Query("SELECT * FROM quizzes WHERE id = :quizId")
     suspend fun getQuizById(quizId: Int): QuizEntity?
 
+    @Query("SELECT * FROM quizzes")
+    suspend fun getAllQuizzesOnce(): List<QuizEntity>
+
+    @Query("SELECT * FROM quizzes WHERE category = :category")
+    suspend fun getQuizzesByCategory(category: String): List<QuizEntity>
+
     @Upsert
     suspend fun upsertQuiz(quiz: QuizEntity)
 
@@ -24,4 +30,5 @@ interface QuizDao {
 
     @Query("DELETE FROM quizzes")
     suspend fun deleteAllQuizzes()
+
 }

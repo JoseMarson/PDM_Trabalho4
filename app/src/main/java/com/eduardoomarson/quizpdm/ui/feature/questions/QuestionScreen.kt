@@ -1,17 +1,21 @@
-package com.eduardoomarson.quizpdm.QuestionsActivity.Model
+package com.eduardoomarson.quizpdm.ui.feature.questions
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -34,8 +38,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eduardoomarson.quizpdm.QuestionsActivity.components.AnswerItem
 import com.eduardoomarson.quizpdm.R
+import com.eduardoomarson.quizpdm.ui.feature.questions.components.AnswerItem
 
 @Composable
 fun QuestionScreen(
@@ -94,7 +98,7 @@ fun QuestionScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Qeustion ${state.currentIndex + 1}/10",
+                    text = "Question ${state.currentIndex + 1}/${state.questions.size}",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
@@ -125,7 +129,7 @@ fun QuestionScreen(
         }
         item {
             LinearProgressIndicator(
-                progress = (state.currentIndex+1)/10f,
+                progress = (state.currentIndex + 1) / state.questions.size.toFloat(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
@@ -146,18 +150,43 @@ fun QuestionScreen(
                 fontWeight = FontWeight.Bold,
             )
         }
-        item { // Image
-            Image(
-                painter = painterResource(imageResId),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
-            )
+        /*  LLM Utilizada: CLAUDE
+            PROMPT: De acordo com o QuestionModel e a CreateQuizScreen, quais alterações
+                   são necessárias na QuestionScreen?
+         */
+        item {
+            if (imageResId != 0) { // Alterado pelo CLAUDE
+                Image(
+                    painter = painterResource(imageResId),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .padding(horizontal = 24.dp, vertical = 8.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            } else { //Sugestão de adicionar placeholder quando não houver imagem
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .padding(horizontal = 24.dp, vertical = 8.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(colorResource(R.color.grey)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Image,
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp),
+                        tint = Color.Gray
+                    )
+                }
+            }
         }
+        // Fim Sugestão CLAUDE
+
         itemsIndexed(
             listOf(
                 currentQuestion.answer_1?:"",
@@ -180,8 +209,8 @@ fun QuestionScreen(
                 val updateQuestion =
                     updatedQuestion[state.currentIndex].copy(clickedAnswer = answerLetter)
                 updatedQuestion[state.currentIndex] = updateQuestion
-                val scoreToAdd = if(answerLetter == updateQuestion.correctAnswer) 5 else 0
-                state=state.copy(
+                val scoreToAdd = if (answerLetter == updateQuestion.correctAnswer) 5 else 0
+                state = state.copy(
                     questions = updatedQuestion,
                     score = state.score + scoreToAdd
                 )
@@ -209,6 +238,7 @@ fun QuestionScreenPreview(){
             score = 10,
             picPath = "q_1",
             clickedAnswer = null,
-        ))
+        )
+    )
     QuestionScreen(questions = questions, onFinish = {}, onBackClick = {})
 }

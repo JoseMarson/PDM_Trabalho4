@@ -37,10 +37,12 @@ import com.eduardoomarson.quizpdm.ui.feature.home.components.GameMadeButtons
 @Composable
 fun HomeScreen(
     onSinglePlayerClick: () -> Unit = {},
+    onCategoryClick: (String) -> Unit = {},
     onHomeClick: () -> Unit = {},
     onBoardClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
     onNeedsProfileSetup: () -> Unit = {},
+    onCreateQuizClick: () -> Unit = {},
     onLogout: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -55,9 +57,11 @@ fun HomeScreen(
     HomeScreenContent(
         uiState = uiState,
         onSinglePlayerClick = onSinglePlayerClick,
+        onCategoryClick = onCategoryClick,
         onHomeClick = onHomeClick,
         onBoardClick = onBoardClick,
         onProfileClick = onProfileClick,
+        onCreateQuizClick = onCreateQuizClick,
         onLogout = onLogout,
     )
 }
@@ -67,9 +71,11 @@ fun HomeScreen(
 fun HomeScreenContent(
     uiState: HomeUiState,
     onSinglePlayerClick: () -> Unit = {},
+    onCategoryClick: (String) -> Unit = {},
     onHomeClick: () -> Unit = {},
     onBoardClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
+    onCreateQuizClick: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
@@ -106,10 +112,12 @@ fun HomeScreenContent(
                     userPic = uiState.userPic
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                GameMadeButtons(onSinglePlayerClick)
+                GameMadeButtons(
+                    onSinglePlayerClick = onSinglePlayerClick,
+                    onCreateQuizClick = onCreateQuizClick)
                 Spacer(modifier = Modifier.height(24.dp))
                 CategoryHeader()
-                CategoryGrid()
+                CategoryGrid(onCategoryClick = onCategoryClick)
                 Spacer(modifier = Modifier.height(80.dp))  // espaço pro BottomNav
             }
             BottomNavigationBar(
@@ -134,6 +142,7 @@ fun HomeScreenPreview() {
             userName = "Alex",
             userScore = 2400,
             userPic = ""
-        )
+        ),
+        onCategoryClick = {}
     )
 }

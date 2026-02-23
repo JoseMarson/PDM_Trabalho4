@@ -8,7 +8,24 @@ class FirestoreRepository(
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
 
-    // ── Quizzes ──────────────────────────────────────────────
+    // ── Criação de Questões e Quizzes ──────────────────────────────────────────────
+    suspend fun saveQuiz(quiz: QuizEntity) {
+        db.collection("quizzes")
+            .document(quiz.id.toString())
+            .set(quiz)
+            .await()
+    }
+
+    suspend fun saveQuestions(questions: List<QuestionEntity>) {
+        questions.forEach { question ->
+            db.collection("questions")
+                .document(question.id.toString())
+                .set(question)
+                .await()
+        }
+    }
+
+    // ── Carregamento dos Quizzes ──────────────────────────────────────────────
 
     suspend fun fetchAllQuizzes(): List<QuizEntity> {
         return db.collection("quizzes")

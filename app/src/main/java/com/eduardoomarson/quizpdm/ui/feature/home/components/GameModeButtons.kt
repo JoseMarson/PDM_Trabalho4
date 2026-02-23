@@ -29,7 +29,10 @@ import com.eduardoomarson.quizpdm.R
 
 @Composable
 @Preview
-fun GameMadeButtons(onSinglePlayerClick:()-> Unit={}){
+fun GameMadeButtons(
+    onSinglePlayerClick:()-> Unit={},
+    onCreateQuizClick: () -> Unit = {},
+    ){
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -42,7 +45,8 @@ fun GameMadeButtons(onSinglePlayerClick:()-> Unit={}){
             iconRes = R.drawable.btn1,
             text = "Create Quiz",
             modifier = Modifier
-                .weight(1f)
+                .weight(1f),
+            onClick = onCreateQuizClick
         )
         Spacer(Modifier.width(12.dp))
         GameButton(

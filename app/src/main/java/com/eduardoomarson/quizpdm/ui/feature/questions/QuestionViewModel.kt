@@ -1,4 +1,4 @@
-package com.eduardoomarson.quizpdm.QuestionsActivity.Model
+package com.eduardoomarson.quizpdm.ui.feature.questions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

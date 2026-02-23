@@ -13,12 +13,25 @@ class QuizRepository(
     private val firestoreRepo: FirestoreRepository = FirestoreRepository()
 ) {
 
+    // ── Para salvar Quizzes criados ───────────────────────────────────────────────
+    suspend fun saveQuizLocally(quiz: QuizEntity, questions: List<QuestionEntity>) {
+        quizDao.upsertQuiz(quiz)
+        questionDao.upsertAllQuestions(questions)
+    }
+
     // ── Quizzes ───────────────────────────────────────────────
 
     fun getAllQuizzes(): Flow<List<QuizEntity>> = quizDao.getAllQuizzes()
 
     suspend fun getQuestionsForQuiz(quizId: Int): List<QuestionEntity> =
         questionDao.getQuestionsByQuizIdOnce(quizId)
+
+    // ── Pegar os quizzes todos e por categoria ─────────────────────
+    suspend fun getAllQuizzesOnce(): List<QuizEntity> =
+        quizDao.getAllQuizzesOnce()
+
+    suspend fun getQuizzesByCategory(category: String): List<QuizEntity> =
+        quizDao.getQuizzesByCategory(category)
 
     // ── Sync ao fazer login ───────────────────────────────────
 
