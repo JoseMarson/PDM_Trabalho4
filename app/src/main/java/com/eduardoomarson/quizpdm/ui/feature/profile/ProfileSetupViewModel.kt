@@ -25,6 +25,38 @@ class ProfileSetupViewModel @Inject constructor(
 
     private val currentUser = FirebaseAuth.getInstance().currentUser
 
+    /*  LLM: CLAUDE
+        PROMPT: Gostaria que o avatar e apelido do usuário já mostrasse no ProfileSetupScreen
+               caso já exista.
+     */
+    // Início sugestão Claude
+    init {
+        loadCurrentProfile()
+    }
+
+    private fun loadCurrentProfile() {
+        val userId = currentUser?.uid ?: return
+        viewModelScope.launch {
+            val existingUser = userDao.getUserById(userId) ?: return@launch
+
+            // Converte "person1" de volta para o resource ID
+            val avatarResId = availableAvatars.getOrNull(
+                existingUser.pic
+                    .removePrefix("person")
+                    .toIntOrNull()
+                    ?.minus(1) ?: -1
+            )
+
+            _uiState.update {
+                it.copy(
+                    name = existingUser.name,
+                    selectedAvatarRes = avatarResId
+                )
+            }
+        }
+    }
+    // Fim sugestão CLAUDE
+
     fun onNameChange(name: String) {
         _uiState.update { it.copy(name = name) }
     }
@@ -52,11 +84,14 @@ class ProfileSetupViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
+                // Busca o usuário atual para preservar o totalScore
+                val existingUser = userDao.getUserById(userId)
+
                 val user = UserEntity(
                     id = userId,
                     name = state.name,
                     pic = picName,
-                    totalScore = 0,
+                    totalScore = existingUser?.totalScore ?: 0,  // Sugestão CLAUDE para preservar o score
                     lastSyncAt = System.currentTimeMillis()
                 )
                 userDao.upsertUser(user)        // salva local

@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eduardoomarson.quizpdm.ui.feature.questions.QuestionScreen
+import com.eduardoomarson.quizpdm.ui.feature.score.ScoreScreen
 
 @Composable
 fun QuizScreen(
@@ -23,11 +24,6 @@ fun QuizScreen(
         }
     }
 
-    // Navega ao finalizar
-    LaunchedEffect(uiState.isFinished) {
-        if (uiState.isFinished) onFinish()
-    }
-
     when {
         uiState.isLoading -> {
             QuizLoadingScreen()
@@ -39,10 +35,17 @@ fun QuizScreen(
             )
         }
 
+        uiState.isFinished -> ScoreScreen(
+            score = uiState.score,
+            onBackToMain = onFinish
+        )
+
         uiState.questions.isNotEmpty() -> {
             QuestionScreen(
                 questions = uiState.questions,
-                onFinish = { viewModel.onQuizFinished() },
+                onFinish = { finalScore ->
+                    viewModel.onQuizFinished(finalScore)
+                },
                 onBackClick = onBackClick
             )
         }

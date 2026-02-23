@@ -28,6 +28,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         loadUserAndSync()
+        observeUserScore() // Para atualizar pontuação do usuário - Sugestão CLAUDE
     }
 
     private fun loadUserAndSync() {
@@ -77,7 +78,27 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-
+    // LLM: CLAUDE
+    // PROMPT: Finalizei o quiz mas o score não foi atualizado na HomeScreen, quais mudanças devem ser realizadas?
+    // INICIO SUGESTÃO CLAUDE
+    private fun observeUserScore() {
+        val userId = currentUser?.uid ?: return
+        viewModelScope.launch {
+            userDao.observeUser(userId).collect { user ->
+                if (user != null) {
+                    _uiState.update {
+                        it.copy(
+                            userName = user.name,
+                            userPic = user.pic,
+                            userScore = user.totalScore
+                        )
+                    }
+                }
+            }
+        }
+    }
+    // FIM SUGESTÃO CLAUDE - há mudanças em UserDao e QuizRepository também decorrentes dessa dúvida.
+    
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.OnLogoutClick -> {

@@ -127,7 +127,7 @@ class QuizViewModel @Inject constructor(
         }
     }
 
-    fun onQuizFinished() {
+    fun onQuizFinished(finalScore: Int) {
         val state = _uiState.value
         val userId = currentUser?.uid ?: return
         viewModelScope.launch {
@@ -135,12 +135,13 @@ class QuizViewModel @Inject constructor(
                 UserQuizProgressEntity(
                     userId = userId,
                     quizId = state.quizId,
-                    score = state.score,
+                    score = finalScore,
                     completed = true,
                     completedAt = System.currentTimeMillis()
                 )
             )
-            _uiState.update { it.copy(isFinished = true) }
+            repository.addScoreToUser(userId, finalScore)
+            _uiState.update { it.copy(isFinished = true, score = finalScore) }
         }
     }
 }

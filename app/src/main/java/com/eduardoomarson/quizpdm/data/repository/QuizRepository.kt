@@ -33,6 +33,14 @@ class QuizRepository(
     suspend fun getQuizzesByCategory(category: String): List<QuizEntity> =
         quizDao.getQuizzesByCategory(category)
 
+    // ── Atualização do score de usuário local e na nuvem ao finalizar quiz ───────────────────────────────────
+    suspend fun addScoreToUser(userId: String, scoreToAdd: Int) {
+        val user = userDao.getUserById(userId) ?: return
+        val updated = user.copy(totalScore = user.totalScore + scoreToAdd)
+        userDao.upsertUser(updated)
+        firestoreRepo.saveUser(updated)
+    }
+
     // ── Sync ao fazer login ───────────────────────────────────
 
     suspend fun syncOnLogin(userId: String) {
