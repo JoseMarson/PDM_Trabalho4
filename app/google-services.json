@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1001997617498",
+    "project_id": "myquiz-cb986",
+    "storage_bucket": "myquiz-cb986.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1001997617498:android:65bb4dea1579711d8ecb63",
+        "android_client_info": {
+          "package_name": "com.example.myquiz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZEjRncSt1hB2A-BSXC42n3R3pmX6SAgA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
