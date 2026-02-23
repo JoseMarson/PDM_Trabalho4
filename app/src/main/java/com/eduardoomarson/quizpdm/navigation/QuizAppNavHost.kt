@@ -110,6 +110,11 @@ fun QuizAppNavHost() {
                 onProfileClick = {
                     navController.navigate(ProfileSetupRoute)
                 },
+                onNeedsProfileSetup = {
+                    navController.navigate(ProfileSetupRoute) {
+                        popUpTo(HomeRoute) { inclusive = false }
+                    }
+                },
                 onLogout = {
                     authViewModel.signout()
                     navController.navigate(LoginRoute) {

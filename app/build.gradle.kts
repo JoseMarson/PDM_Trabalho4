@@ -70,6 +70,8 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.runtime.livedata)
+    implementation(libs.androidx.runtime)
+    implementation(libs.androidx.ui)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
@@ -107,4 +109,9 @@ dependencies {
 
     // Gson (TypeConverter do Room)
     implementation(libs.gson)
+
+    // Para login e cadastro com Conta Google
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play)
+    implementation(libs.googleid)
 }

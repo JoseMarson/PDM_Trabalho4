@@ -36,7 +36,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            // 1. Carrega do Room imediatamente (offline-first)
+            // 1. Carrega do Room imediatamente (offline primeiramente)
             val localUser = userDao.getUserById(userId)
             if (localUser != null) {
                 _uiState.update {
@@ -47,16 +47,19 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             } else {
-                // Fallback: usa dados básicos do Firebase Auth
+                // Usuário novo (Google) ou sem perfil ainda, sendo assim usa ProfileSetup
                 _uiState.update {
-                    it.copy(userName = currentUser.displayName ?: "Jogador")
+                    it.copy(
+                        isLoading = false,
+                        needsProfileSetup = true    // Atualiza parametro do HomeUiState
+                    )
                 }
+                return@launch                       // necessário que pare aqui, não sincroniza
             }
 
-            // 2. Sincroniza com a nuvem em background
+            // 2. Sincroniza com a nuvem em background (irá ser realizada se user já tem perfil)
             try {
                 repository.syncOnLogin(userId)
-                // Recarrega do Room após sync
                 val updatedUser = userDao.getUserById(userId)
                 if (updatedUser != null) {
                     _uiState.update {
@@ -73,6 +76,7 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
 
     fun onEvent(event: HomeEvent) {
         when (event) {

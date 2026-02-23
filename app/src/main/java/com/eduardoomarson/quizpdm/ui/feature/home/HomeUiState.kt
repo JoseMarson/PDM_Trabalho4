@@ -5,5 +5,6 @@ data class HomeUiState(
     val userPic: String = "",
     val userScore: Int = 0,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val needsProfileSetup: Boolean = false
 )

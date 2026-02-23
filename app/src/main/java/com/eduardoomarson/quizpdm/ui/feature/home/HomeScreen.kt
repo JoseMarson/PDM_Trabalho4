@@ -18,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,10 +40,17 @@ fun HomeScreen(
     onHomeClick: () -> Unit = {},
     onBoardClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
+    onNeedsProfileSetup: () -> Unit = {},
     onLogout: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // Redireciona usuário novo do Google para configurar perfil
+
+    LaunchedEffect(uiState.needsProfileSetup) {
+        if (uiState.needsProfileSetup) onNeedsProfileSetup()
+    }
 
     HomeScreenContent(
         uiState = uiState,

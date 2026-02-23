@@ -1,10 +1,23 @@
 package com.eduardoomarson.quizpdm.authentication
 
+import android.content.Context
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.FirebaseAuth
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.eduardoomarson.quizpdm.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import com.eduardoomarson.quizpdm.authentication.AuthState
-import com.google.firebase.auth.FirebaseAuth
+
 
 class AuthViewModel : ViewModel() {
 
@@ -142,4 +155,56 @@ class AuthViewModel : ViewModel() {
         }
     }
     /*Fim Sugestão Gemini */
+
+    // Funções para logar e cadastrar com conta Google
+
+    fun signInWithGoogle(context: Context) {
+        val credentialManager = CredentialManager.create(context)
+
+        val googleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId(context.getString(R.string.web_client_id))
+            .build()
+
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+
+        _authState.value = AuthState.Loading
+
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val result = credentialManager.getCredential(context, request)
+                handleGoogleSignIn(result)
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(
+                    e.message ?: "Erro ao entrar com Google"
+                )
+            }
+        }
+    }
+
+    private fun handleGoogleSignIn(result: GetCredentialResponse) {
+        val credential = result.credential
+        if (credential is CustomCredential &&
+            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+        ) {
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+            val firebaseCredential = GoogleAuthProvider.getCredential(
+                googleIdTokenCredential.idToken, null
+            )
+            auth.signInWithCredential(firebaseCredential)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        _authState.value = AuthState.Authenticated
+                    } else {
+                        _authState.value = AuthState.Error(
+                            task.exception?.message ?: "Erro ao autenticar"
+                        )
+                    }
+                }
+        } else {
+            _authState.value = AuthState.Error("Credencial inválida")
+        }
+    }
 }
