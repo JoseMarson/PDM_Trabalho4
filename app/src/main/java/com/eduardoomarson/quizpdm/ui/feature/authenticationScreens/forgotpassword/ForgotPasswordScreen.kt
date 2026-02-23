@@ -26,9 +26,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eduardoomarson.quizpdm.R
 import com.eduardoomarson.quizpdm.authentication.AuthState
 import com.eduardoomarson.quizpdm.authentication.AuthViewModel
 import com.eduardoomarson.quizpdm.ui.theme.QuizPDMTheme
@@ -92,12 +95,17 @@ fun ForgotPasswordContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("Recuperar Senha", fontSize = 32.sp)
+        Text("Recuperar Senha",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = colorResource(R.color.navy_blue)
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = "Digite seu e-mail para receber instruções de recuperação",
+            fontSize = 20.sp,
             modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
         )
 

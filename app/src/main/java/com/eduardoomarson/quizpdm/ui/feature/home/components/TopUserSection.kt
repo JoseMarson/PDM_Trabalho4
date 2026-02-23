@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,32 +27,46 @@ import coil.compose.AsyncImage
 import com.eduardoomarson.quizpdm.R
 
 @Composable
+fun picNameToResId(picName: String): Int? {
+    val context = LocalContext.current
+    if (picName.isEmpty()) return null
+    val resId = context.resources.getIdentifier(
+        picName, "drawable", context.packageName
+    )
+    return if (resId != 0) resId else null
+}
+
+@Composable
 @Preview
 fun TopUserSection(
     userName: String = "Jogador",
     userScore: Int = 0,
     userPic: String = ""
 ){
+    val avatarResId = picNameToResId(userPic)
+
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 24.dp, vertical = 24.dp),
         verticalAlignment = Alignment.CenterVertically,
         ) {
-        if (userPic.isNotEmpty()) {
-            AsyncImage(                              // coil-compose já está no projeto
-                model = userPic,
+        if (avatarResId != null) {
+            Image(
+                painter = painterResource(avatarResId),
                 contentDescription = null,
                 modifier = Modifier
                     .size(55.dp)
-                    .clip(CircleShape)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
             )
         } else {
             Image(
-                painter = painterResource(id = R.drawable.profile),
+                painter = painterResource(R.drawable.profile),
                 contentDescription = null,
                 modifier = Modifier.size(55.dp)
             )
         }
+
         Spacer(modifier = Modifier.width(16.dp))
         Text(text="Hi,$userName!",
             fontSize = 20.sp,

@@ -13,6 +13,7 @@ import com.eduardoomarson.quizpdm.ui.feature.authenticationScreens.forgotpasswor
 import com.eduardoomarson.quizpdm.authentication.AuthState
 import com.eduardoomarson.quizpdm.authentication.AuthViewModel
 import com.eduardoomarson.quizpdm.ui.feature.home.HomeScreen
+import com.eduardoomarson.quizpdm.ui.feature.profile.ProfileSetupScreen
 
 import kotlinx.serialization.Serializable
 
@@ -24,6 +25,10 @@ object SignupRoute
 object ForgotPasswordRoute
 @Serializable
 object HomeRoute
+@Serializable
+object ProfileSetupRoute
+@Serializable
+object BoardRoute
 @Serializable
 data class AddEditRoute(val id: Long?= null)
 
@@ -69,8 +74,8 @@ fun QuizAppNavHost() {
 
         composable<SignupRoute> {
             SignupScreen(
-                navigateToListScreen = {
-                    navController.navigate(HomeRoute) {
+                navigateToProfileScreen = {
+                    navController.navigate(ProfileSetupRoute) {
                         popUpTo(SignupRoute) { inclusive = true }
                     }
                 },
@@ -81,34 +86,42 @@ fun QuizAppNavHost() {
             )
         }
 
+        composable<ProfileSetupRoute> {
+            ProfileSetupScreen(
+                onProfileSaved = {
+                    navController.navigate(HomeRoute) {
+                        popUpTo(ProfileSetupRoute) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable<HomeRoute> {
             HomeScreen(
                 onSinglePlayerClick = {
                     // navController.navigate(QuizRoute) TODO
                 },
+                onHomeClick = {
+                    navController.navigate(HomeRoute)
+                },
                 onBoardClick = {
                     // navController.navigate(BoardRoute) TODO
+                },
+                onProfileClick = {
+                    navController.navigate(ProfileSetupRoute)
+                },
+                onLogout = {
+                    authViewModel.signout()
+                    navController.navigate(LoginRoute) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
     }
 }
 
-
         /* Exemplo no aplicativo anterior usar como referencia para criar HomeRoute - TODO
-        composable<HomeRoute>{
-            HomeScreen(
-                navigateToAddEditScreen = { id ->
-                    navController.navigate(AddEditRoute(id = id))
-                },
-                navigateToLoginScreen = {
-                    navController.navigate(LoginRoute) {
-                        popUpTo(0) { inclusive = true } // Sugestão Claude
-                    }
-                },
-                authViewModel = authViewModel
-            )
-        }
 
         composable<AddEditRoute>{ backStackEntry ->
             val addEditRoute = backStackEntry.toRoute<AddEditRoute>()

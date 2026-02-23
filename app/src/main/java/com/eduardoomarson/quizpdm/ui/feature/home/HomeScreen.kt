@@ -6,8 +6,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,7 +36,10 @@ import com.eduardoomarson.quizpdm.ui.feature.home.components.GameMadeButtons
 @Composable
 fun HomeScreen(
     onSinglePlayerClick: () -> Unit = {},
+    onHomeClick: () -> Unit = {},
     onBoardClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
+    onLogout: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -35,45 +47,74 @@ fun HomeScreen(
     HomeScreenContent(
         uiState = uiState,
         onSinglePlayerClick = onSinglePlayerClick,
-        onBoardClick = onBoardClick
+        onHomeClick = onHomeClick,
+        onBoardClick = onBoardClick,
+        onProfileClick = onProfileClick,
+        onLogout = onLogout,
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
     uiState: HomeUiState,
     onSinglePlayerClick: () -> Unit = {},
-    onBoardClick: () -> Unit = {}
+    onHomeClick: () -> Unit = {},
+    onBoardClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = colorResource(id = R.color.grey))
-    ) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-        ) {
-            TopUserSection(
-                userName = uiState.userName,
-                userScore = uiState.userScore,
-                userPic = uiState.userPic
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("") },
+                actions = {
+                    IconButton(onClick = onLogout) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = "Sair"
+                        )
+                    }
+                }
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            GameMadeButtons(onSinglePlayerClick)
-            Spacer(modifier = Modifier.height(24.dp))
-            CategoryHeader()
-            CategoryGrid()
         }
-        BottomNavigationBar(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            onItemSelected = { itemId ->
-                if (itemId == R.id.board) onBoardClick()
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(color = colorResource(id = R.color.grey))
+        ) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+            ) {
+                TopUserSection(
+                    userName = uiState.userName,
+                    userScore = uiState.userScore,
+                    userPic = uiState.userPic
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                GameMadeButtons(onSinglePlayerClick)
+                Spacer(modifier = Modifier.height(24.dp))
+                CategoryHeader()
+                CategoryGrid()
+                Spacer(modifier = Modifier.height(80.dp))  // espaço pro BottomNav
             }
-        )
+            BottomNavigationBar(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onItemSelected = { itemId ->
+                    when (itemId) {
+                        R.id.home -> onHomeClick()
+                        R.id.board -> onBoardClick()
+                        R.id.profile -> onProfileClick()
+                    }
+                }
+            )
+        }
     }
 }
 

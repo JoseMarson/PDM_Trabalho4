@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -25,18 +26,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eduardoomarson.quizpdm.R
 import com.eduardoomarson.quizpdm.authentication.AuthState
 import com.eduardoomarson.quizpdm.authentication.AuthViewModel
 import com.eduardoomarson.quizpdm.ui.theme.QuizPDMTheme
 
 @Composable
 fun SignupScreen(
-    navigateToListScreen: () -> Unit,
+    navigateToProfileScreen: () -> Unit,
     navigateToLoginScreen: () -> Unit,
     authViewModel: AuthViewModel,
 ){
@@ -50,7 +54,7 @@ fun SignupScreen(
 
     LaunchedEffect(authState.value) {
         when (val state = authState.value) {
-            is AuthState.Authenticated -> navigateToListScreen()
+            is AuthState.Authenticated -> navigateToProfileScreen()
             is AuthState.Error -> {
                 snackbarHostState.showSnackbar(state.message)
                 authViewModel.resetAuthState()
@@ -96,7 +100,11 @@ fun SignupContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Cadastro", fontSize = 32.sp)
+        Text("Cadastro",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = colorResource(R.color.navy_blue)
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -146,6 +154,10 @@ fun SignupContent(
         Button(
             onClick = onSignupClick,
             modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(R.color.orange),
+                contentColor = colorResource(R.color.white)
+            ),
             enabled = !isLoading
         ) {
             if(isLoading){
@@ -160,6 +172,10 @@ fun SignupContent(
         Button(
             onClick = onLoginClick,
             modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(R.color.orange),
+                contentColor = colorResource(R.color.white)
+            ),
             enabled = !isLoading
         ) {
             Text(text = "Já tem uma conta? Faça Login aqui!")

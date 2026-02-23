@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -26,11 +28,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eduardoomarson.quizpdm.R
 import com.eduardoomarson.quizpdm.authentication.AuthState
 import com.eduardoomarson.quizpdm.authentication.AuthViewModel
 import com.eduardoomarson.quizpdm.ui.theme.QuizPDMTheme
@@ -94,11 +99,18 @@ fun LoginContent(email: String,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Minhas Tarefas", fontSize = 32.sp)
+        Text("Quizz App",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = colorResource(R.color.navy_blue))
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Text("Login", fontSize = 32.sp)
+        Text("Login",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = colorResource(R.color.navy_blue)
+            )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -132,6 +144,10 @@ fun LoginContent(email: String,
 
         TextButton(
             onClick = onForgotPasswordClick,
+            colors = ButtonDefaults.buttonColors(
+                contentColor = colorResource(R.color.navy_blue),
+                containerColor = colorResource(R.color.white)
+            ),
             enabled = !isLoading
         ) {
             Text(text = "Esqueci minha senha")
@@ -142,6 +158,10 @@ fun LoginContent(email: String,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(R.color.orange),
+                contentColor = colorResource(R.color.white)
+            ),
             enabled = !isLoading
         ) {
             // Sugestão do Claude de usar circularProgressInidicator
@@ -157,6 +177,10 @@ fun LoginContent(email: String,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(R.color.orange),
+                contentColor = colorResource(R.color.white)
+            ),
             enabled = !isLoading
         ) {
             Text(text = "Não tem uma conta? Cadastre-se aqui!")
