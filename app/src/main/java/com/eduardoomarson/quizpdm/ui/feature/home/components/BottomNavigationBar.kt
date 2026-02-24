@@ -12,6 +12,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.eduardoomarson.quizpdm.R
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 
 @Composable
 fun BottomNavigationBar(onItemSelected: (Int)->Unit, modifier: Modifier= Modifier){
@@ -33,7 +35,15 @@ fun BottomNavigationBar(onItemSelected: (Int)->Unit, modifier: Modifier= Modifie
             icon = {Icon(painter = painterResource(R.drawable.bottom_btn2), contentDescription = null)},
             label = {Text(text = "Board")}
         )
-
+        NavigationBarItem(
+            selected = false,
+            onClick = {onItemSelected(R.id.history)},
+            icon = {Icon(
+                imageVector = Icons.Filled.History,
+                contentDescription = null
+            )},
+            label = {Text(text = "History")}
+        )
         NavigationBarItem(
             selected = false,
             onClick = {onItemSelected(R.id.profile)},

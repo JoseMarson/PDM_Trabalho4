@@ -9,6 +9,10 @@
         android:icon="@drawable/bottom_btn2"
         android:title="Board"/>
     <item
+        android:id="@+id/history"
+        android:icon="@drawable/bottom_btn3"
+        android:title="Histórico"/>
+    <item
         android:id="@+id/profile"
         android:icon="@drawable/bottom_btn4"
         android:title="Profile"/>

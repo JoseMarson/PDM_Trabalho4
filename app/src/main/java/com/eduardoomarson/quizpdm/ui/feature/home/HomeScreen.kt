@@ -40,6 +40,7 @@ fun HomeScreen(
     onCategoryClick: (String) -> Unit = {},
     onHomeClick: () -> Unit = {},
     onBoardClick: () -> Unit = {},
+    onHistoryClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
     onNeedsProfileSetup: () -> Unit = {},
     onCreateQuizClick: () -> Unit = {},
@@ -60,6 +61,7 @@ fun HomeScreen(
         onCategoryClick = onCategoryClick,
         onHomeClick = onHomeClick,
         onBoardClick = onBoardClick,
+        onHistoryClick = onHistoryClick,
         onProfileClick = onProfileClick,
         onCreateQuizClick = onCreateQuizClick,
         onLogout = onLogout,
@@ -74,6 +76,7 @@ fun HomeScreenContent(
     onCategoryClick: (String) -> Unit = {},
     onHomeClick: () -> Unit = {},
     onBoardClick: () -> Unit = {},
+    onHistoryClick: () -> Unit,
     onProfileClick: () -> Unit = {},
     onCreateQuizClick: () -> Unit = {},
     onLogout: () -> Unit = {}
@@ -127,6 +130,7 @@ fun HomeScreenContent(
                         R.id.home -> onHomeClick()
                         R.id.board -> onBoardClick()
                         R.id.profile -> onProfileClick()
+                        R.id.history -> onHistoryClick()
                     }
                 }
             )
@@ -143,6 +147,7 @@ fun HomeScreenPreview() {
             userScore = 2400,
             userPic = ""
         ),
-        onCategoryClick = {}
+        onCategoryClick = {},
+        onHistoryClick = {}
     )
 }

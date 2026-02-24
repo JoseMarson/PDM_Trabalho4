@@ -39,7 +39,7 @@ object ProfileSetupRoute
 @Serializable
 object BoardRoute
 @Serializable
-data class AddEditRoute(val id: Long?= null)
+object HistoryRoute
 
 @Composable
 fun QuizAppNavHost() {
@@ -105,6 +105,10 @@ fun QuizAppNavHost() {
             )
         }
 
+        composable<HistoryRoute> {
+            // HistoryScreen — implementar depois - TODO
+        }
+
         composable<CreateQuizRoute> {
             CreateQuizScreen(
                 onQuizSaved = { navController.popBackStack() },
@@ -142,6 +146,9 @@ fun QuizAppNavHost() {
                 },
                 onBoardClick = {
                     // navController.navigate(BoardRoute) TODO
+                },
+                onHistoryClick = {
+                    //navController.navigate(HistoryRoute) TODO
                 },
                 onProfileClick = {
                     navController.navigate(ProfileSetupRoute)

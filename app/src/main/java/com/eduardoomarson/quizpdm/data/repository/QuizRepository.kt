@@ -50,9 +50,26 @@ class QuizRepository(
         syncUserProgressFromCloud(userId)
     }
 
+    /* LLM: CLAUDE
+       PROMPT: ao logar no mesmo usuário do computador no celular, o score e o avatar do
+       usuário já cadastrado antes no computador nao apareceu no celular, ou seja, ele nao puxou da
+       nuvem os dados do usuário, quais alterações devem ser realizadas para que isso não ocorra?
+     */
     private suspend fun syncUserFromCloud(userId: String) {
         val remoteUser = firestoreRepo.fetchUser(userId) ?: return
-        userDao.upsertUser(remoteUser)
+        val localUser = userDao.getUserById(userId)
+
+        // Início Sugestão CLAUDE
+        val mergedUser = remoteUser.copy(
+            totalScore = maxOf(remoteUser.totalScore, localUser?.totalScore ?: 0),
+            pic = if (remoteUser.pic.isNotBlank()) remoteUser.pic else localUser?.pic ?: ""
+        )
+        userDao.upsertUser(mergedUser)
+
+        if (mergedUser.totalScore > remoteUser.totalScore || mergedUser.pic != remoteUser.pic) {
+            firestoreRepo.saveUser(mergedUser)
+        }
+        //Fim Sugestão CLAUDE
     }
 
     private suspend fun syncQuizzesAndQuestionsFromCloud() {

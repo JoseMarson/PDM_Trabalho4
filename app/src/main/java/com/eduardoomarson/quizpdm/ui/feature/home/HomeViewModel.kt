@@ -43,28 +43,60 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            // 1. Carrega do Room imediatamente (offline primeiramente)
             val localUser = userDao.getUserById(userId)
-            if (localUser != null) {
-                _uiState.update {
-                    it.copy(
-                        userName = localUser.name,
-                        userPic = localUser.pic,
-                        userScore = localUser.totalScore
-                    )
+            /* LLM: CLAUDE
+               PROMPT: ao logar no mesmo usuário do computador no celular, o score e o avatar do
+               usuário já cadastrado antes no computador nao apareceu no celular, ou seja, ele
+               nao puxou da nuvem os dados do usuário, quais alterações devem ser realizadas para
+                que isso não ocorra?
+            */
+
+            // Inicio Sugestão CLAUDE
+            if (localUser == null) {
+                // Dispositivo novo ou usuário Google sem perfil ainda
+                // Tenta buscar da nuvem antes de decidir
+                try {
+                    repository.syncOnLogin(userId)
+                    val cloudUser = userDao.getUserById(userId)
+
+                    if (cloudUser == null) {
+                        // Realmente é novo (email/Google sem perfil criado ainda)
+                        _uiState.update {
+                            it.copy(isLoading = false, needsProfileSetup = true)
+                        }
+                        return@launch
+                    }
+                    // Fim Sugestão CLAUDE
+
+                    // Tinha perfil na nuvem (ex: usuário Google em dispositivo novo)
+                    _uiState.update {
+                        it.copy(
+                            userName = cloudUser.name,
+                            userPic = cloudUser.pic,
+                            userScore = cloudUser.totalScore,
+                            isLoading = false
+                        )
+                    }
+
+                } catch (e: Exception) {
+                    // Sem internet e sem dados locais → pede ProfileSetup
+                    _uiState.update {
+                        it.copy(isLoading = false, needsProfileSetup = true)
+                    }
                 }
-            } else {
-                // Usuário novo (Google) ou sem perfil ainda, sendo assim usa ProfileSetup
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        needsProfileSetup = true    // Atualiza parametro do HomeUiState
-                    )
-                }
-                return@launch                       // necessário que pare aqui, não sincroniza
+                return@launch
             }
 
-            // 2. Sincroniza com a nuvem em background (irá ser realizada se user já tem perfil)
+            // Tem dados locais → carrega imediatamente (offline first)
+            _uiState.update {
+                it.copy(
+                    userName = localUser.name,
+                    userPic = localUser.pic,
+                    userScore = localUser.totalScore
+                )
+            }
+
+            // Sincroniza com nuvem em background
             try {
                 repository.syncOnLogin(userId)
                 val updatedUser = userDao.getUserById(userId)
