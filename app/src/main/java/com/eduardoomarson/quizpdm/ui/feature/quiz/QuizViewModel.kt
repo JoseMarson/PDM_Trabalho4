@@ -90,11 +90,15 @@ class QuizViewModel @Inject constructor(
                     clickedAnswer = null
                 )
             }
+
+            val quiz = repository.getQuizById(quizId)
+
             android.util.Log.d("QuizVM", "Questions mapeadas: ${questions.size}")
             _uiState.update {
                 it.copy(
                     questions = questions,
                     quizId = quizId,
+                    quizCategory = quiz?.category ?: "",
                     isLoading = false,
                     currentIndex = 0,
                     score = 0
@@ -136,10 +140,10 @@ class QuizViewModel @Inject constructor(
         val userId = currentUser?.uid ?: return
         val timeSeconds = (System.currentTimeMillis() - startTimeMillis) / 1000
         val correctAnswers = answeredQuestions.count {
-            it.clickedAnswer == it.correctAnswer   // ← agora tem os dados corretos
+            it.clickedAnswer == it.correctAnswer
         }
         val totalQuestions = answeredQuestions.size
-        val maxScore = totalQuestions * 5
+        val maxScore = answeredQuestions.sumOf { it.score }
 
         android.util.Log.d("ScoreDebug", "finalScore: $finalScore")
         android.util.Log.d("ScoreDebug", "correctAnswers: $correctAnswers")

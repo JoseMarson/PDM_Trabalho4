@@ -40,10 +40,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eduardoomarson.quizpdm.R
 import com.eduardoomarson.quizpdm.ui.feature.questions.components.AnswerItem
+import com.eduardoomarson.quizpdm.ui.utils.getCategoryImageRes
 
 @Composable
 fun QuestionScreen(
     questions: List<QuestionModel>,
+    category: String = "",
     onFinish: (finalScore: Int, answeredQuestions: List<QuestionModel>) -> Unit,
     onBackClick: ()-> Unit,
 ){
@@ -155,35 +157,21 @@ fun QuestionScreen(
                    são necessárias na QuestionScreen?
          */
         item {
-            if (imageResId != 0) { // Alterado pelo CLAUDE
-                Image(
-                    painter = painterResource(imageResId),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .padding(horizontal = 24.dp, vertical = 8.dp)
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            } else { //Sugestão de adicionar placeholder quando não houver imagem
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .padding(horizontal = 24.dp, vertical = 8.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(colorResource(R.color.grey)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Image,
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp),
-                        tint = Color.Gray
-                    )
-                }
+            val displayImageRes = if (imageResId != 0) {
+                imageResId
+            } else {
+                getCategoryImageRes(category)            // ← usa imagem da categoria
             }
+            Image(
+                painter = painterResource(displayImageRes),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
         }
         // Fim Sugestão CLAUDE
 
@@ -209,7 +197,7 @@ fun QuestionScreen(
                 val updateQuestion =
                     updatedQuestion[state.currentIndex].copy(clickedAnswer = answerLetter)
                 updatedQuestion[state.currentIndex] = updateQuestion
-                val scoreToAdd = if (answerLetter == updateQuestion.correctAnswer) 5 else 0
+                val scoreToAdd = if (answerLetter == updateQuestion.correctAnswer) updateQuestion.score else 0
                 state = state.copy(
                     questions = updatedQuestion,
                     score = state.score + scoreToAdd
@@ -240,6 +228,6 @@ fun QuestionScreenPreview(){
             clickedAnswer = null,
         )
     )
-    QuestionScreen(questions = questions, onFinish = { _, _ -> }, onBackClick = {})
+    QuestionScreen(questions = questions,  category = "Inglês", onFinish = { _, _ -> }, onBackClick = {})
 
 }

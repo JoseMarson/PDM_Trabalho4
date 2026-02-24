@@ -5,6 +5,7 @@ import com.eduardoomarson.quizpdm.ui.feature.questions.QuestionModel
 data class QuizUiState(
     val questions: List<QuestionModel> = emptyList(),
     val quizId: String = "",
+    val quizCategory: String = "",
     val currentIndex: Int = 0,
     val score: Int = 0,
     val correctAnswers: Int = 0,

@@ -47,6 +47,7 @@ fun QuizScreen(
         uiState.questions.isNotEmpty() -> {
             QuestionScreen(
                 questions = uiState.questions,
+                category = uiState.quizCategory,
                 onFinish = { finalScore, answeredQuestions ->
                     viewModel.onQuizFinished(finalScore, answeredQuestions)
                 },

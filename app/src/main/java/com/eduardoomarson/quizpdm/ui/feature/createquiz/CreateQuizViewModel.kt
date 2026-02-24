@@ -53,6 +53,15 @@ class CreateQuizViewModel @Inject constructor(
         }
     }
 
+    private fun scoreForDifficulty(difficulty: String): Int {
+        return when (difficulty) {
+            "fácil"  -> 3
+            "médio"  -> 5
+            "difícil" -> 10
+            else     -> 5
+        }
+    }
+
     private fun saveQuiz() {
         val state = _uiState.value
 
@@ -76,6 +85,7 @@ class CreateQuizViewModel @Inject constructor(
                 // Geração de um ID baseado no timestamp
                 val quizId = System.currentTimeMillis().toString()
                 val now = System.currentTimeMillis()
+                val scorePerQuestion = scoreForDifficulty(state.difficulty)
 
                 // Cria as entidades de questão
                 val questionEntities = state.questions.mapIndexed { index, q ->
@@ -88,7 +98,7 @@ class CreateQuizViewModel @Inject constructor(
                         answer3 = q.answer3,
                         answer4 = q.answer4,
                         correctAnswer = q.correctAnswer,
-                        score = 5,
+                        score = scorePerQuestion,
                         picPath = q.picPath
                     )
                 }
@@ -104,7 +114,7 @@ class CreateQuizViewModel @Inject constructor(
                     difficulty = state.difficulty,
                     imageUrl = "",
                     questionIds = Gson().toJson(questionIds),
-                    totalScore = questionEntities.size * 5,
+                    totalScore = questionEntities.size * scorePerQuestion,
                     createdAt = now
                 )
 
