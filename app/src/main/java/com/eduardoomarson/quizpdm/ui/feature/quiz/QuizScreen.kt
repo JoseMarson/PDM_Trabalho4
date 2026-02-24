@@ -37,14 +37,18 @@ fun QuizScreen(
 
         uiState.isFinished -> ScoreScreen(
             score = uiState.score,
+            totalQuestions = uiState.totalQuestions,
+            correctAnswers = uiState.correctAnswers,
+            timeSeconds = uiState.timeSeconds,
+            maxScore = uiState.maxScore,
             onBackToMain = onFinish
         )
 
         uiState.questions.isNotEmpty() -> {
             QuestionScreen(
                 questions = uiState.questions,
-                onFinish = { finalScore ->
-                    viewModel.onQuizFinished(finalScore)
+                onFinish = { finalScore, answeredQuestions ->
+                    viewModel.onQuizFinished(finalScore, answeredQuestions)
                 },
                 onBackClick = onBackClick
             )

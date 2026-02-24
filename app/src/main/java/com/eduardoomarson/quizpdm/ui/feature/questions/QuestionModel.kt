@@ -5,7 +5,7 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class QuestionModel(
-    val id: Int,
+    val id: String = "",
     val question: String?,
     val answer_1: String?,
     val answer_2: String?,

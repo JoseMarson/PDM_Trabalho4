@@ -11,7 +11,7 @@ interface UserQuizProgressDao {
     fun getProgressByUser(userId: String): Flow<List<UserQuizProgressEntity>>
 
     @Query("SELECT * FROM user_quiz_progress WHERE userId = :userId AND quizId = :quizId")
-    suspend fun getProgress(userId: String, quizId: Int): UserQuizProgressEntity?
+    suspend fun getProgress(userId: String, quizId: String): UserQuizProgressEntity?
 
     @Upsert
     suspend fun upsertProgress(progress: UserQuizProgressEntity)

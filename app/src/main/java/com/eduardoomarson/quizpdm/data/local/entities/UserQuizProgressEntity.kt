@@ -8,9 +8,9 @@ import androidx.room.Entity
     primaryKeys = ["userId", "quizId"]
 )
 data class UserQuizProgressEntity(
-    val userId: String,
-    val quizId: Int,
-    val score: Int,
-    val completed: Boolean,
+    val userId: String = "",
+    val quizId: String = "",
+    val score: Int = 0,
+    val completed: Boolean = false,
     val completedAt: Long = 0L
 )

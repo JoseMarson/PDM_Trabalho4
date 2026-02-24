@@ -10,6 +10,7 @@ class QuizRepository(
     private val questionDao: QuestionDao,
     private val userDao: UserDao,
     private val progressDao: UserQuizProgressDao,
+    private val historyDao: HistoryDao,
     private val firestoreRepo: FirestoreRepository = FirestoreRepository()
 ) {
 
@@ -23,7 +24,7 @@ class QuizRepository(
 
     fun getAllQuizzes(): Flow<List<QuizEntity>> = quizDao.getAllQuizzes()
 
-    suspend fun getQuestionsForQuiz(quizId: Int): List<QuestionEntity> =
+    suspend fun getQuestionsForQuiz(quizId: String): List<QuestionEntity> =
         questionDao.getQuestionsByQuizIdOnce(quizId)
 
     // ── Pegar os quizzes todos e por categoria ─────────────────────
@@ -69,6 +70,21 @@ class QuizRepository(
         progressDao.upsertAllProgress(progressList)
     }
 
+
+    // ── Sync entrar em Home  ───────────────────────────────────
+    // Busca quizzes do Firestore sem salvar
+    suspend fun fetchQuizzesFromCloud(): List<QuizEntity> =
+        firestoreRepo.fetchAllQuizzes()
+
+    // Sincroniza quizzes e questões no Room
+    suspend fun syncQuizzesAndQuestions(remoteQuizzes: List<QuizEntity>) {
+        quizDao.upsertAllQuizzes(remoteQuizzes)
+        remoteQuizzes.forEach { quiz ->
+            val questions = firestoreRepo.fetchQuestionsByQuizId(quiz.id)
+            questionDao.upsertAllQuestions(questions)
+        }
+    }
+
     // ── Salvar progresso (local + nuvem) ─────────────────────
 
     suspend fun saveQuizProgress(progress: UserQuizProgressEntity) {
@@ -78,4 +94,17 @@ class QuizRepository(
 
     fun getUserProgress(userId: String): Flow<List<UserQuizProgressEntity>> =
         progressDao.getProgressByUser(userId)
+
+    // ── Histórico de Usuário (local + nuvem) ─────────────────────
+
+    suspend fun saveHistory(history: HistoryEntity) {
+        historyDao.upsertHistory(history)
+        firestoreRepo.saveHistory(history)
+    }
+
+    suspend fun getQuizById(quizId: String): QuizEntity? = quizDao.getQuizById(quizId)
+
+    fun getHistoryByUser(userId: String): Flow<List<HistoryEntity>> =
+        historyDao.getHistoryByUser(userId)
+
 }

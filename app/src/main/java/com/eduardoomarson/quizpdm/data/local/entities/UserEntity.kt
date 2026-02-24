@@ -5,9 +5,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "users")
 data class UserEntity(
-    @PrimaryKey val id: String,   // uid do Firebase Auth
-    val name: String,
-    val pic: String,
-    val totalScore: Int,
+    @PrimaryKey val id: String = "",   // uid do Firebase Auth
+    val name: String = "",
+    val pic: String = "",
+    val totalScore: Int = 0,
     val lastSyncAt: Long = 0L
 )

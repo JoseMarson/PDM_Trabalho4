@@ -2,6 +2,7 @@ package com.eduardoomarson.quizpdm.data.remote.firestore
 
 import com.eduardoomarson.quizpdm.data.local.entities.*
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.tasks.await
 
 class FirestoreRepository(
@@ -11,7 +12,7 @@ class FirestoreRepository(
     // ── Criação de Questões e Quizzes ──────────────────────────────────────────────
     suspend fun saveQuiz(quiz: QuizEntity) {
         db.collection("quizzes")
-            .document(quiz.id.toString())
+            .document(quiz.id)
             .set(quiz)
             .await()
     }
@@ -19,7 +20,7 @@ class FirestoreRepository(
     suspend fun saveQuestions(questions: List<QuestionEntity>) {
         questions.forEach { question ->
             db.collection("questions")
-                .document(question.id.toString())
+                .document(question.id)
                 .set(question)
                 .await()
         }
@@ -35,11 +36,24 @@ class FirestoreRepository(
             }
     }
 
-    suspend fun fetchQuestionsByQuizId(quizId: Int): List<QuestionEntity> {
+    suspend fun fetchQuestionsByQuizId(quizId: String): List<QuestionEntity> {
         return db.collection("questions")
             .whereEqualTo("quizId", quizId)
             .get().await()
             .documents.mapNotNull { it.toObject(QuestionEntity::class.java) }
+    }
+
+    // ── Listener em tempo real para quizzes ──────────────────────────────────────────────
+
+    fun observeQuizzes(onUpdate: (List<QuizEntity>) -> Unit): ListenerRegistration {
+        return db.collection("quizzes")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+                val quizzes = snapshot.documents.mapNotNull {
+                    it.toObject(QuizEntity::class.java)
+                }
+                onUpdate(quizzes)
+            }
     }
 
     // ── Usuário ───────────────────────────────────────────────
@@ -73,5 +87,21 @@ class FirestoreRepository(
             .document(docId)
             .set(progress)
             .await()
+    }
+
+    // ── Histórico de Usuário ─────────────────────────────────────────────
+
+    suspend fun saveHistory(history: HistoryEntity) {
+        db.collection("quiz_history")
+            .document(history.id)
+            .set(history)
+            .await()
+    }
+
+    suspend fun fetchHistoryByUser(userId: String): List<HistoryEntity> {
+        return db.collection("quiz_history")
+            .whereEqualTo("userId", userId)
+            .get().await()
+            .documents.mapNotNull { it.toObject(HistoryEntity::class.java) }
     }
 }

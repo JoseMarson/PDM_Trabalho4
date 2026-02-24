@@ -16,7 +16,7 @@ val availableCategories = listOf(
     "Ciências",
     "História",
     "Esportes",
-    "Artes",
+    "Geral",
     "Tecnologia",
     "Direito",
     "Inglês",

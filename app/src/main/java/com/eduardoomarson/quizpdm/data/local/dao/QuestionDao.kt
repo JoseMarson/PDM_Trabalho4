@@ -8,14 +8,14 @@ import kotlinx.coroutines.flow.Flow
 interface QuestionDao {
 
     @Query("SELECT * FROM questions WHERE quizId = :quizId")
-    fun getQuestionsByQuizId(quizId: Int): Flow<List<QuestionEntity>>
+    fun getQuestionsByQuizId(quizId: String): Flow<List<QuestionEntity>>
 
     @Query("SELECT * FROM questions WHERE quizId = :quizId")
-    suspend fun getQuestionsByQuizIdOnce(quizId: Int): List<QuestionEntity>
+    suspend fun getQuestionsByQuizIdOnce(quizId: String): List<QuestionEntity>
 
     @Upsert
     suspend fun upsertAllQuestions(questions: List<QuestionEntity>)
 
     @Query("DELETE FROM questions WHERE quizId = :quizId")
-    suspend fun deleteQuestionsByQuizId(quizId: Int)
+    suspend fun deleteQuestionsByQuizId(quizId: String)
 }

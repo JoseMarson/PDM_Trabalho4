@@ -44,7 +44,7 @@ import com.eduardoomarson.quizpdm.ui.feature.questions.components.AnswerItem
 @Composable
 fun QuestionScreen(
     questions: List<QuestionModel>,
-    onFinish: (finalScore:Int) -> Unit,
+    onFinish: (finalScore: Int, answeredQuestions: List<QuestionModel>) -> Unit,
     onBackClick: ()-> Unit,
 ){
     var state by remember{
@@ -115,11 +115,11 @@ fun QuestionScreen(
                 }
                 IconButton(
                     onClick = {
-                        if(state.currentIndex==9){
-                            onFinish(state.score)
-                        }else{
+                        if (state.currentIndex == state.questions.size - 1) {  // ← dinâmico
+                            onFinish(state.score, state.questions)              // ← passa as questões
+                        } else {
                             selectedAnswer = null
-                            state = state.copy(currentIndex = state.currentIndex+1)
+                            state = state.copy(currentIndex = state.currentIndex + 1)
                         }
                     }
                 ) {
@@ -228,7 +228,7 @@ fun QuestionScreen(
 fun QuestionScreenPreview(){
     val questions = listOf(
         QuestionModel(
-            id = 1,
+            id = "1",
             question = "What is the capital of France?",
             answer_1 = "Paris",
             answer_2 = "London",
@@ -240,5 +240,6 @@ fun QuestionScreenPreview(){
             clickedAnswer = null,
         )
     )
-    QuestionScreen(questions = questions, onFinish = {}, onBackClick = {})
+    QuestionScreen(questions = questions, onFinish = { _, _ -> }, onBackClick = {})
+
 }

@@ -74,13 +74,13 @@ class CreateQuizViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
             try {
                 // Geração de um ID baseado no timestamp
-                val quizId = System.currentTimeMillis().toInt()
+                val quizId = System.currentTimeMillis().toString()
                 val now = System.currentTimeMillis()
 
                 // Cria as entidades de questão
                 val questionEntities = state.questions.mapIndexed { index, q ->
                     QuestionEntity(
-                        id = (quizId + index),
+                        id = "${quizId}_${index}",
                         quizId = quizId,
                         question = q.question,
                         answer1 = q.answer1,

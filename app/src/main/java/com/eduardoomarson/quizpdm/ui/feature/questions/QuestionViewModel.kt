@@ -23,7 +23,7 @@ class QuestionViewModel(
     }
 
     // Chamado ao finalizar um quiz
-    fun onQuizFinished(quizId: Int, finalScore: Int) {
+    fun onQuizFinished(quizId: String, finalScore: Int) {
         viewModelScope.launch {
             repository.saveQuizProgress(
                 UserQuizProgressEntity(

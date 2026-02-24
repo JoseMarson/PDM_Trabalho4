@@ -44,7 +44,7 @@ fun CategoryGrid(
         "Ciências"   to Icons.Filled.Science,
         "História"   to Icons.AutoMirrored.Filled.MenuBook,
         "Esportes"   to Icons.Filled.SportsSoccer,
-        "Artes"      to Icons.Filled.Palette,
+        "Geral"      to Icons.Filled.Apps,
         "Tecnologia" to Icons.Filled.Computer,
         "Direito"    to Icons.Filled.Gavel,
         "Inglês"     to Icons.Filled.Language,

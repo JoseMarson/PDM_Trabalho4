@@ -1,6 +1,7 @@
 package com.eduardoomarson.quizpdm.di
 
 import android.content.Context
+import com.eduardoomarson.quizpdm.data.local.dao.HistoryDao
 import com.eduardoomarson.quizpdm.data.local.dao.QuestionDao
 import com.eduardoomarson.quizpdm.data.local.dao.QuizDao
 import com.eduardoomarson.quizpdm.data.local.dao.UserDao
@@ -31,6 +32,10 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideHistoryDao(db: QuizDatabase): HistoryDao = db.historyDao()
+
+    @Provides
+    @Singleton
     fun provideFirestoreRepository(): FirestoreRepository = FirestoreRepository()
 
     @Provides
@@ -40,6 +45,7 @@ object AppModule {
         questionDao: QuestionDao,
         userDao: UserDao,
         progressDao: UserQuizProgressDao,
+        historyDao: HistoryDao,
         firestoreRepo: FirestoreRepository
-    ): QuizRepository = QuizRepository(quizDao, questionDao, userDao, progressDao, firestoreRepo)
+    ): QuizRepository = QuizRepository(quizDao, questionDao, userDao, progressDao, historyDao, firestoreRepo)
 }

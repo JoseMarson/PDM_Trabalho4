@@ -1,11 +1,12 @@
-// ui/feature/home/HomeViewModel.kt
 package com.eduardoomarson.quizpdm.ui.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eduardoomarson.quizpdm.data.local.dao.UserDao
+import com.eduardoomarson.quizpdm.data.remote.firestore.FirestoreRepository
 import com.eduardoomarson.quizpdm.data.repository.QuizRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ListenerRegistration
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: QuizRepository,
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    private val firestoreRepo: FirestoreRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -26,9 +28,13 @@ class HomeViewModel @Inject constructor(
     // Pega o usuário logado direto do Firebase Auth
     private val currentUser = FirebaseAuth.getInstance().currentUser
 
+    // Para atualizações do banco de dados de quizzes:
+    private var quizListener: ListenerRegistration? = null
+
     init {
         loadUserAndSync()
         observeUserScore() // Para atualizar pontuação do usuário - Sugestão CLAUDE
+        syncQuizzesInBackground() // Para atualizar banco de Quizzes sempre que entrar em Home
     }
 
     private fun loadUserAndSync() {
@@ -98,7 +104,20 @@ class HomeViewModel @Inject constructor(
         }
     }
     // FIM SUGESTÃO CLAUDE - há mudanças em UserDao e QuizRepository também decorrentes dessa dúvida.
-    
+
+    private fun syncQuizzesInBackground() {
+        quizListener = firestoreRepo.observeQuizzes { remoteQuizzes ->
+            viewModelScope.launch {
+                repository.syncQuizzesAndQuestions(remoteQuizzes)
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        quizListener?.remove()   // cancela o listener ao sair
+    }
+
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.OnLogoutClick -> {

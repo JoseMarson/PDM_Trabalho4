@@ -43,7 +43,7 @@ fun GameMadeButtons(
         GameButton(
             backgroundColor = R.color.blue,
             iconRes = R.drawable.btn1,
-            text = "Create Quiz",
+            text = "Criar Quiz",
             modifier = Modifier
                 .weight(1f),
             onClick = onCreateQuizClick
@@ -52,7 +52,7 @@ fun GameMadeButtons(
         GameButton(
             backgroundColor = R.color.purple,
             iconRes = R.drawable.btn2,
-            text = "Play Quiz",
+            text = "Quiz Aleatório",
             modifier = Modifier
                 .weight(1f),
             onClick = onSinglePlayerClick

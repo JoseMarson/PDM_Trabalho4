@@ -26,14 +26,10 @@ fun CategoryHeader() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = "Quiz Categories",
+        Text(text = "Categorias de Quizzes",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = colorResource(id = R.color.navy_blue)
-        )
-        Text(text = "See All",
-            fontSize = 16.sp,
-            color = colorResource(id = R.color.orange)
         )
     }
 }

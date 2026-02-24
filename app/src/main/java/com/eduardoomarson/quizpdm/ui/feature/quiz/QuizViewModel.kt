@@ -2,6 +2,7 @@ package com.eduardoomarson.quizpdm.ui.feature.quiz
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eduardoomarson.quizpdm.data.local.entities.HistoryEntity
 import com.eduardoomarson.quizpdm.ui.feature.questions.QuestionModel
 import com.eduardoomarson.quizpdm.data.local.entities.UserQuizProgressEntity
 import com.eduardoomarson.quizpdm.data.repository.QuizRepository
@@ -23,11 +24,13 @@ class QuizViewModel @Inject constructor(
     val uiState: StateFlow<QuizUiState> = _uiState.asStateFlow()
 
     private val currentUser = FirebaseAuth.getInstance().currentUser
+    private var startTimeMillis = 0L
 
     // Carrega quiz aleatório
     fun loadRandomQuiz() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
+            startTimeMillis = System.currentTimeMillis()
             try {
                 android.util.Log.d("QuizVM", "Buscando quizzes...")
                 val allQuizzes = repository.getAllQuizzesOnce()
@@ -49,6 +52,7 @@ class QuizViewModel @Inject constructor(
     fun loadQuizByCategory(category: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
+            startTimeMillis = System.currentTimeMillis()
             try {
                 android.util.Log.d("QuizVM", "Buscando categoria: $category")
                 val quizzesByCategory = repository.getQuizzesByCategory(category)
@@ -66,7 +70,7 @@ class QuizViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadQuestionsForQuiz(quizId: Int) {
+    private suspend fun loadQuestionsForQuiz(quizId: String) {
         try {
             android.util.Log.d("QuizVM", "Buscando questões do quiz: $quizId")
             val questionEntities = repository.getQuestionsForQuiz(quizId)
@@ -127,10 +131,36 @@ class QuizViewModel @Inject constructor(
         }
     }
 
-    fun onQuizFinished(finalScore: Int) {
+    fun onQuizFinished(finalScore: Int, answeredQuestions: List<QuestionModel>) {
         val state = _uiState.value
         val userId = currentUser?.uid ?: return
+        val timeSeconds = (System.currentTimeMillis() - startTimeMillis) / 1000
+        val correctAnswers = answeredQuestions.count {
+            it.clickedAnswer == it.correctAnswer   // ← agora tem os dados corretos
+        }
+        val totalQuestions = answeredQuestions.size
+        val maxScore = totalQuestions * 5
+
+        android.util.Log.d("ScoreDebug", "finalScore: $finalScore")
+        android.util.Log.d("ScoreDebug", "correctAnswers: $correctAnswers")
+        android.util.Log.d("ScoreDebug", "totalQuestions: $totalQuestions")
+        android.util.Log.d("ScoreDebug", "timeSeconds: $timeSeconds")
+        android.util.Log.d("ScoreDebug", "maxScore: $maxScore")
+        android.util.Log.d("ScoreDebug", "questions com clickedAnswer: ${state.questions.map { it.clickedAnswer }}")
+
+        _uiState.update {
+            it.copy(
+                isFinished = true,
+                score = finalScore,
+                correctAnswers = correctAnswers,
+                totalQuestions = totalQuestions,
+                timeSeconds = timeSeconds,
+                maxScore = maxScore
+            )
+        }
+
         viewModelScope.launch {
+            // Salva UserQuizProgress
             repository.saveQuizProgress(
                 UserQuizProgressEntity(
                     userId = userId,
@@ -140,8 +170,25 @@ class QuizViewModel @Inject constructor(
                     completedAt = System.currentTimeMillis()
                 )
             )
+
+            // Salva histórico do Quiz
+            val quiz = repository.getQuizById(state.quizId)
+            repository.saveHistory(
+                HistoryEntity(
+                    id = "${userId}_${state.quizId}_${System.currentTimeMillis()}",
+                    userId = userId,
+                    quizId = state.quizId,
+                    quizTitle = quiz?.title ?: "Quiz",
+                    category = quiz?.category ?: "",
+                    totalQuestions = state.questions.size,
+                    correctAnswers = correctAnswers,
+                    score = finalScore,
+                    maxScore = state.questions.size * 5,
+                    timeSeconds = timeSeconds
+                )
+            )
+
             repository.addScoreToUser(userId, finalScore)
-            _uiState.update { it.copy(isFinished = true, score = finalScore) }
         }
     }
 }
