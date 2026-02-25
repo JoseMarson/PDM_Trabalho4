@@ -22,6 +22,7 @@ import com.eduardoomarson.quizpdm.R
 @Composable
 fun OnBackRow(onBack:()-> Unit){
     Row(
+
         modifier = Modifier
             .fillMaxWidth()
             .padding(24.dp),

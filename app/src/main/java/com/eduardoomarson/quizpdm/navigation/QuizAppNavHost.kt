@@ -13,11 +13,14 @@ import com.eduardoomarson.quizpdm.ui.feature.authenticationScreens.signup.Signup
 import com.eduardoomarson.quizpdm.ui.feature.authenticationScreens.forgotpassword.ForgotPasswordScreen
 import com.eduardoomarson.quizpdm.authentication.AuthState
 import com.eduardoomarson.quizpdm.authentication.AuthViewModel
+import com.eduardoomarson.quizpdm.ui.feature.board.BoardScreen
 import com.eduardoomarson.quizpdm.ui.feature.createquiz.CreateQuizScreen
 import com.eduardoomarson.quizpdm.ui.feature.home.HomeScreen
+import com.eduardoomarson.quizpdm.ui.feature.home.components.Model.UserModel
 import com.eduardoomarson.quizpdm.ui.feature.profile.ProfileSetupScreen
 import com.eduardoomarson.quizpdm.ui.feature.quiz.QuizScreen
 import com.eduardoomarson.quizpdm.ui.feature.quizlist.QuizListScreen
+
 
 import kotlinx.serialization.Serializable
 
@@ -154,6 +157,14 @@ fun QuizAppNavHost() {
             )
         }
 
+        //====================================================    Editado por samuel 160 e 167
+        composable<BoardRoute> {
+            BoardScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        //====================================================
+
         composable<HomeRoute> {
             HomeScreen(
                 onSinglePlayerClick = {
@@ -165,9 +176,9 @@ fun QuizAppNavHost() {
                 onHomeClick = {
                     navController.navigate(HomeRoute)
                 },
-                onBoardClick = {
-                    // navController.navigate(BoardRoute) TODO
-                },
+                onBoardClick = {  // <----- Editado por samuel
+                     navController.navigate(BoardRoute)  // <----- Editado por samuel
+                }, // <----- Editado por samuel
                 onHistoryClick = {
                     //navController.navigate(HistoryRoute) TODO
                 },

@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.runtime)
     implementation(libs.androidx.ui)
+    implementation(libs.androidx.appcompat)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 

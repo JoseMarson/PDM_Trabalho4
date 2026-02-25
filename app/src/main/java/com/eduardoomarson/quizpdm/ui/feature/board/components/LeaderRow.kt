@@ -36,11 +36,11 @@ fun LeaderRow(user: UserModel, rank: Int){
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+             .padding(horizontal = 16.dp, vertical = 8.dp )
             .height(70.dp)
             .background(color = colorResource(R.color.white),
                 shape = RoundedCornerShape(10.dp))
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp ),
         verticalAlignment = Alignment.CenterVertically
     ){
         Text(text = rank.toString())

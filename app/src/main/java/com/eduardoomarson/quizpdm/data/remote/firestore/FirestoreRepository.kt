@@ -3,6 +3,7 @@ package com.eduardoomarson.quizpdm.data.remote.firestore
 import com.eduardoomarson.quizpdm.data.local.entities.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 
 class FirestoreRepository(
@@ -35,7 +36,6 @@ class FirestoreRepository(
                 doc.toObject(QuizEntity::class.java)
             }
     }
-
     suspend fun fetchQuestionsByQuizId(quizId: String): List<QuestionEntity> {
         return db.collection("questions")
             .whereEqualTo("quizId", quizId)
@@ -73,14 +73,12 @@ class FirestoreRepository(
     }
 
     // ── Progresso ─────────────────────────────────────────────
-
     suspend fun fetchUserProgress(userId: String): List<UserQuizProgressEntity> {
         return db.collection("user_quiz_progress")
             .whereEqualTo("userId", userId)
             .get().await()
             .documents.mapNotNull { it.toObject(UserQuizProgressEntity::class.java) }
     }
-
     suspend fun saveProgress(progress: UserQuizProgressEntity) {
         val docId = "${progress.userId}_${progress.quizId}"
         db.collection("user_quiz_progress")
@@ -88,7 +86,6 @@ class FirestoreRepository(
             .set(progress)
             .await()
     }
-
     // ── Histórico de Usuário ─────────────────────────────────────────────
 
     suspend fun saveHistory(history: HistoryEntity) {
@@ -97,11 +94,33 @@ class FirestoreRepository(
             .set(history)
             .await()
     }
-
     suspend fun fetchHistoryByUser(userId: String): List<HistoryEntity> {
         return db.collection("quiz_history")
             .whereEqualTo("userId", userId)
             .get().await()
             .documents.mapNotNull { it.toObject(HistoryEntity::class.java) }
     }
+
+    // ── Rank users query ordenada  ─────────────────────────────────────────────
+    // Criado por samuel
+
+    fun fetchAllUsersOrderedRank(
+        onResult: (List<UserEntity>) -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        db.collection("users")
+            .orderBy("totalScore", Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { result ->
+                val users = result.documents.mapNotNull {
+                    it.toObject(UserEntity::class.java)
+                }
+                onResult(users)
+            }
+            .addOnFailureListener { exception ->
+                onError(exception)
+            }
+    }
+
+    //  ──────────────────────────────────────────────────────────────────────────────────────────
 }

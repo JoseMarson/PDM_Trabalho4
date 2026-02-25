@@ -3,17 +3,7 @@ package com.eduardoomarson.quizpdm.ui.feature.board.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -50,11 +40,14 @@ fun TopUserBox(
         modifier = Modifier.width(sizeDp.dp),
         verticalArrangement = Arrangement.Bottom
     ) {
+
         ConstraintLayout(
             modifier = Modifier
-                .height(220.dp)
-                .width(sizeDp.dp)) {
-            val (imgRef, badgeRef, crownRef)=createRefs()
+                .height(300.dp) // <----- Editado por samuel
+                .width(sizeDp.dp)
+        ) {
+            val (imgRef, badgeRef, crownRef) = createRefs()
+
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(getDrawableId(user.pic))
@@ -66,7 +59,11 @@ fun TopUserBox(
                     .padding(top = 16.dp)
                     .size(sizeDp.dp)
                     .clip(CircleShape)
-                    .border(3.dp, Color(android.graphics.Color.parseColor(color)), CircleShape)
+                    .border(
+                        3.dp,
+                        Color(android.graphics.Color.parseColor(color)),
+                        CircleShape
+                    )
                     .constrainAs(imgRef){
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
@@ -74,16 +71,21 @@ fun TopUserBox(
                         end.linkTo(parent.end)
                     }
             )
+
             if(crown){
-                Image(painter = painterResource(R.drawable.crown),
+                Image(
+                    painter = painterResource(R.drawable.crown),
                     contentDescription = null,
                     modifier = Modifier.constrainAs(crownRef) {
                         bottom.linkTo(imgRef.top)
                         top.linkTo(imgRef.top)
                         start.linkTo(imgRef.start)
                         end.linkTo(imgRef.end)
-                    })
+                    }
+                )
             }
+
+//-----------
             Box(
                 modifier = Modifier
                     .size(28.dp)
@@ -104,16 +106,27 @@ fun TopUserBox(
                     textAlign = TextAlign.Center
                 )
             }
+
+
             Text(
                 text = user.name,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 8.dp)
+                     .constrainAs(createRef()) {
+                        top.linkTo(imgRef.bottom, margin = 40.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
+                fontSize = 10.sp // samuel aqui
             )
         }
+
+
+//---------- balão de pontuação
+
         Row(
             modifier = Modifier
                 .height(30.dp)
@@ -125,12 +138,18 @@ fun TopUserBox(
                 .padding(horizontal = 8.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ){
-            Image(painter = painterResource(R.drawable.garnet),
+            Image(
+                painter = painterResource(R.drawable.garnet),
                 contentDescription = null,
-                modifier = Modifier.size(16.dp))
+                modifier = Modifier.size(16.dp)
+            )
             Spacer(Modifier.width(8.dp))
             Text(user.score.toString(), color = Color.White)
         }
+
+
+//----------
+
     }
 }
 
@@ -138,29 +157,27 @@ fun TopUserBox(
 fun TopThreeSection(
     users: List<UserModel>,
 ){
+    // 🔐 PROTEÇÃO CONTRA LISTA VAZIA OU MENOR QUE 3
+    if (users.size < 3) {
+        return
+    }
+
+    val first = users[0]
+    val second = users[1]
+    val third = users[2]
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp),
+            .padding(start = 16.dp, end = 16.dp , top = 0.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ){
-        TopUserBox(user= users[2], rank = 3, color = "#ae844f", sizeDp = 100)
-        TopUserBox(user= users[0], rank = 1, color = "#feb33a", sizeDp = 130, crown = true)
-        TopUserBox(user= users[1], rank = 2, color = "#bfbfc0", sizeDp = 100)
+        TopUserBox(user = third,  rank = 3, color = "#ae844f", sizeDp = 100)
+        TopUserBox(user = first,  rank = 1, color = "#feb33a", sizeDp = 130, crown = true)
+        TopUserBox(user = second, rank = 2, color = "#bfbfc0", sizeDp = 100)
     }
 }
-@Preview
-@Composable
-fun TopThreeSectionPreview(){
-    val users = listOf(
-        UserModel(id = 1, name = "User 1", pic = "person1", score = 300),
-        UserModel(id = 2, name = "User 2", pic = "person2", score = 200),
-        UserModel(id = 3, name = "User 3", pic = "person3", score = 100)
-    )
-    TopThreeSection(
-        users = users
-    )
-}
+
 @Composable
 fun getDrawableId(name: String): Int{
     val context = LocalContext.current
@@ -169,13 +186,11 @@ fun getDrawableId(name: String): Int{
 
 @Preview
 @Composable
-fun TopUserBoxPreview(){
-    val user = UserModel(id = 1, name = "John Doe", pic = "person1", score = 100)
-    TopUserBox(
-        user = user,
-        rank = 1,
-        color = "#ae844f",
-        sizeDp = 100,
-        crown = true
+fun TopThreeSectionPreview(){
+    val users = listOf(
+        UserModel(id = 1, name = "User 1", pic = "person1", score = 300),
+        UserModel(id = 2, name = "User 2", pic = "person2", score = 200),
+        UserModel(id = 3, name = "User 3", pic = "person3", score = 100)
     )
+    TopThreeSection(users = users)
 }
