@@ -17,6 +17,7 @@ import com.eduardoomarson.quizpdm.ui.feature.createquiz.CreateQuizScreen
 import com.eduardoomarson.quizpdm.ui.feature.home.HomeScreen
 import com.eduardoomarson.quizpdm.ui.feature.profile.ProfileSetupScreen
 import com.eduardoomarson.quizpdm.ui.feature.quiz.QuizScreen
+import com.eduardoomarson.quizpdm.ui.feature.quizlist.QuizListScreen
 
 import kotlinx.serialization.Serializable
 
@@ -33,13 +34,15 @@ object CreateQuizRoute
 @Serializable
 object QuizRandomRoute
 @Serializable
-data class QuizCategoryRoute(val category: String)
-@Serializable
 object ProfileSetupRoute
 @Serializable
 object BoardRoute
 @Serializable
 object HistoryRoute
+@Serializable
+data class QuizListRoute(val category: String)
+@Serializable
+data class QuizByIdRoute(val quizId: String)
 
 @Composable
 fun QuizAppNavHost() {
@@ -120,16 +123,34 @@ fun QuizAppNavHost() {
             QuizScreen(
                 category = null,
                 onBackClick = { navController.popBackStack() },
-                onFinish = { navController.popBackStack() }
+                onFinish = {
+                    navController.navigate(HomeRoute) {
+                        popUpTo(HomeRoute) { inclusive = false }
+                    }
+                }
             )
         }
 
-        composable<QuizCategoryRoute> { backStackEntry ->
-            val route = backStackEntry.toRoute<QuizCategoryRoute>()
-            QuizScreen(
+        composable<QuizListRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<QuizListRoute>()
+            QuizListScreen(
                 category = route.category,
+                onQuizClick = { quizId ->
+                    navController.navigate(QuizByIdRoute(quizId))
+                },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable<QuizByIdRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<QuizByIdRoute>()
+            QuizScreen(
+                quizId = route.quizId,
                 onBackClick = { navController.popBackStack() },
-                onFinish = { navController.popBackStack() }
+                onFinish = { navController.navigate(HomeRoute) {
+                    popUpTo(HomeRoute) { inclusive = false } // Sugestão Claude: Para limpar a pilha
+                }
+                }
             )
         }
 
@@ -139,7 +160,7 @@ fun QuizAppNavHost() {
                     navController.navigate(QuizRandomRoute)
                 },
                 onCategoryClick = { category ->
-                    navController.navigate(QuizCategoryRoute(category))
+                    navController.navigate(QuizListRoute(category))
                 },
                 onHomeClick = {
                     navController.navigate(HomeRoute)
@@ -169,19 +190,3 @@ fun QuizAppNavHost() {
         }
     }
 }
-
-        /* Exemplo no aplicativo anterior usar como referencia para criar HomeRoute - TODO
-
-        composable<AddEditRoute>{ backStackEntry ->
-            val addEditRoute = backStackEntry.toRoute<AddEditRoute>()
-            AddEditScreen(
-                id = addEditRoute.id,
-                navigateBack = {
-                    navController.popBackStack()
-                }
-            )
-        }
-    }
-}
-
- */

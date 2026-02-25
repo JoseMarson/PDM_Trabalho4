@@ -11,7 +11,7 @@ data class QuizEntity(
     val category: String = "",
     val difficulty: String = "",
     val imageUrl: String = "",
-    val questionIds: String = "", // JSON serializado: "[1,2,3]"
+    val questionIds: String = "",
     val totalScore: Int = 0,
     val createdAt: Long = 0L
 )

@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.eduardoomarson.quizpdm.User.Model.UserModel
+import com.eduardoomarson.quizpdm.ui.feature.home.components.Model.UserModel
 import com.eduardoomarson.quizpdm.R
 
 @Composable

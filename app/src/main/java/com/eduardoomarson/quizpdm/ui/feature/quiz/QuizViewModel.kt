@@ -135,6 +135,14 @@ class QuizViewModel @Inject constructor(
         }
     }
 
+    fun loadQuizById(quizId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            startTimeMillis = System.currentTimeMillis()
+            loadQuestionsForQuiz(quizId)
+        }
+    }
+
     fun onQuizFinished(finalScore: Int, answeredQuestions: List<QuestionModel>) {
         val state = _uiState.value
         val userId = currentUser?.uid ?: return

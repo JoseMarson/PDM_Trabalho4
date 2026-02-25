@@ -9,6 +9,7 @@ import com.eduardoomarson.quizpdm.ui.feature.score.ScoreScreen
 @Composable
 fun QuizScreen(
     category: String? = null,
+    quizId: String? = null,
     onBackClick: () -> Unit,
     onFinish: () -> Unit,
     viewModel: QuizViewModel = hiltViewModel(),
@@ -17,10 +18,10 @@ fun QuizScreen(
 
     // Carrega ao entrar na tela
     LaunchedEffect(Unit) {
-        if (category != null) {
-            viewModel.loadQuizByCategory(category)
-        } else {
-            viewModel.loadRandomQuiz()
+        when {
+            quizId != null   -> viewModel.loadQuizById(quizId)
+            category != null -> viewModel.loadQuizByCategory(category)
+            else             -> viewModel.loadRandomQuiz()
         }
     }
 

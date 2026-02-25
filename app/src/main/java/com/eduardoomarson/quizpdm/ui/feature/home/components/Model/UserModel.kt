@@ -1,4 +1,4 @@
-package com.eduardoomarson.quizpdm.User.Model
+package com.eduardoomarson.quizpdm.ui.feature.home.components.Model
 
 data class UserModel(
     val id: Int,
