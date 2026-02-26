@@ -1,0 +1,17 @@
+package com.eduardoomarson.quizpdm.data.local.entities
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "quizzes")
+data class QuizEntity(
+    @PrimaryKey val id: String = "",
+    val title: String = "",
+    val description: String = "",
+    val category: String = "",
+    val difficulty: String = "",
+    val imageUrl: String = "",
+    val questionIds: String = "",
+    val totalScore: Int = 0,
+    val createdAt: Long = 0L
+)

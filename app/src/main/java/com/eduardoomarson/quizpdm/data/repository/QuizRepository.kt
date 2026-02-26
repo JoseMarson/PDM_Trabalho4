@@ -1,0 +1,127 @@
+package com.eduardoomarson.quizpdm.data.repository
+
+import com.eduardoomarson.quizpdm.data.local.dao.*
+import com.eduardoomarson.quizpdm.data.local.entities.*
+import com.eduardoomarson.quizpdm.data.remote.firestore.FirestoreRepository
+import kotlinx.coroutines.flow.Flow
+
+class QuizRepository(
+    private val quizDao: QuizDao,
+    private val questionDao: QuestionDao,
+    private val userDao: UserDao,
+    private val progressDao: UserQuizProgressDao,
+    private val historyDao: HistoryDao,
+    private val firestoreRepo: FirestoreRepository = FirestoreRepository()
+) {
+
+    // ── Para salvar Quizzes criados ───────────────────────────────────────────────
+    suspend fun saveQuizLocally(quiz: QuizEntity, questions: List<QuestionEntity>) {
+        quizDao.upsertQuiz(quiz)
+        questionDao.upsertAllQuestions(questions)
+    }
+
+    // ── Quizzes ───────────────────────────────────────────────
+
+    fun getAllQuizzes(): Flow<List<QuizEntity>> = quizDao.getAllQuizzes()
+
+    suspend fun getQuestionsForQuiz(quizId: String): List<QuestionEntity> =
+        questionDao.getQuestionsByQuizIdOnce(quizId)
+
+    // ── Pegar os quizzes todos e por categoria ─────────────────────
+    suspend fun getAllQuizzesOnce(): List<QuizEntity> =
+        quizDao.getAllQuizzesOnce()
+
+    suspend fun getQuizzesByCategory(category: String): List<QuizEntity> =
+        quizDao.getQuizzesByCategory(category)
+
+    // ── Atualização do score de usuário local e na nuvem ao finalizar quiz ───────────────────────────────────
+    suspend fun addScoreToUser(userId: String, scoreToAdd: Int) {
+        val user = userDao.getUserById(userId) ?: return
+        val updated = user.copy(totalScore = user.totalScore + scoreToAdd)
+        userDao.upsertUser(updated)
+        firestoreRepo.saveUser(updated)
+    }
+
+    // ── Sync ao fazer login ───────────────────────────────────
+
+    suspend fun syncOnLogin(userId: String) {
+        syncUserFromCloud(userId)
+        syncQuizzesAndQuestionsFromCloud()
+        syncUserProgressFromCloud(userId)
+    }
+
+    /* LLM: CLAUDE
+       PROMPT: ao logar no mesmo usuário do computador no celular, o score e o avatar do
+       usuário já cadastrado antes no computador nao apareceu no celular, ou seja, ele nao puxou da
+       nuvem os dados do usuário, quais alterações devem ser realizadas para que isso não ocorra?
+     */
+    private suspend fun syncUserFromCloud(userId: String) {
+        val remoteUser = firestoreRepo.fetchUser(userId) ?: return
+        val localUser = userDao.getUserById(userId)
+
+        // Início Sugestão CLAUDE
+        val mergedUser = remoteUser.copy(
+            totalScore = maxOf(remoteUser.totalScore, localUser?.totalScore ?: 0),
+            pic = if (remoteUser.pic.isNotBlank()) remoteUser.pic else localUser?.pic ?: ""
+        )
+        userDao.upsertUser(mergedUser)
+
+        if (mergedUser.totalScore > remoteUser.totalScore || mergedUser.pic != remoteUser.pic) {
+            firestoreRepo.saveUser(mergedUser)
+        }
+        //Fim Sugestão CLAUDE
+    }
+
+    private suspend fun syncQuizzesAndQuestionsFromCloud() {
+        val remoteQuizzes = firestoreRepo.fetchAllQuizzes()
+        quizDao.upsertAllQuizzes(remoteQuizzes)
+
+        remoteQuizzes.forEach { quiz ->
+            val questions = firestoreRepo.fetchQuestionsByQuizId(quiz.id)
+            questionDao.upsertAllQuestions(questions)
+        }
+    }
+
+    private suspend fun syncUserProgressFromCloud(userId: String) {
+        val progressList = firestoreRepo.fetchUserProgress(userId)
+        progressDao.upsertAllProgress(progressList)
+    }
+
+
+    // ── Sync entrar em Home  ───────────────────────────────────
+    // Busca quizzes do Firestore sem salvar
+    suspend fun fetchQuizzesFromCloud(): List<QuizEntity> =
+        firestoreRepo.fetchAllQuizzes()
+
+    // Sincroniza quizzes e questões no Room
+    suspend fun syncQuizzesAndQuestions(remoteQuizzes: List<QuizEntity>) {
+        quizDao.upsertAllQuizzes(remoteQuizzes)
+        remoteQuizzes.forEach { quiz ->
+            val questions = firestoreRepo.fetchQuestionsByQuizId(quiz.id)
+            questionDao.upsertAllQuestions(questions)
+        }
+    }
+
+    // ── Salvar progresso (local + nuvem) ─────────────────────
+
+    suspend fun saveQuizProgress(progress: UserQuizProgressEntity) {
+        progressDao.upsertProgress(progress)          // salva local
+        firestoreRepo.saveProgress(progress)          // salva na nuvem
+    }
+
+    fun getUserProgress(userId: String): Flow<List<UserQuizProgressEntity>> =
+        progressDao.getProgressByUser(userId)
+
+    // ── Histórico de Usuário (local + nuvem) ─────────────────────
+
+    suspend fun saveHistory(history: HistoryEntity) {
+        historyDao.upsertHistory(history)
+        firestoreRepo.saveHistory(history)
+    }
+
+    suspend fun getQuizById(quizId: String): QuizEntity? = quizDao.getQuizById(quizId)
+
+    fun getHistoryByUser(userId: String): Flow<List<HistoryEntity>> =
+        historyDao.getHistoryByUser(userId)
+
+}
